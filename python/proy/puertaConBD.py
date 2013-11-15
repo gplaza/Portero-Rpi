@@ -8,6 +8,7 @@ import RPi.GPIO as GPIO # Para trabajar con las entradas y salidas
 import sqlite3 as lite # Libreria para acceder al BD sqlite
 import datetime
 import sys
+from bottle import route, run, template, request
 
 
 ## Declaracion de variables globales##
