@@ -41,9 +41,9 @@ def main() :
 # programa. El bouncetime es para que si llaman 2 veces en menos de medio segundo solo 
 # se entre en la interrupcion 1 vez.
   GPIO.add_event_detect(pinpulsador, GPIO.FALLING, callback=intrllamada, bouncetime=500)
-  GPIO.cleanup() #liberamos los pines
   while 1:
     print('no se como hacer la interrupcion de abrir puerta abrepuerta() desde android')
     time.sleep(0.1)
+  GPIO.cleanup() #liberamos los pines al finalizar el programa
 #Entramos en main
 main()
