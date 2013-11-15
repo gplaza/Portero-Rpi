@@ -23,6 +23,20 @@ usr_input = 'Bety' # 'Lety'
 pass_input = 'pa55w0rd'
 db_name = 'control' #Nombre de la base de datos.
 
+# Parte de Giles por comentar
+@route('/door/<name>')
+def index(name='World'):
+  return template('<b>Hello {{name}}</b>!', name=name)
+
+@route('/login', method='POST')
+def login():
+  username = request.POST.get('user', '')
+  password = request.POST.get('password', '')
+  if username == 'javi' and password == 'test':
+      return { "success" : True }
+  else:
+      return { "success" : False }
+
 # configura los puertos fisicos de la raspberry Pi. Se conectara una entrada y una salida.
 def configpuerta () :  
   GPIO.setmode(GPIO.BOARD) # El mapeado de los pines es fisicamente como estan en la placa
