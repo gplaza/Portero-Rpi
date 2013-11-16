@@ -15,7 +15,7 @@
     
     <PreferenceCategory android:title="@string/pref_update_setting" >
                 <EditTextPreference
-            android:key="prefUsername"
+            android:key="prefUrl"
             android:summary="@string/pref_update_url_summary"
             android:title="@string/pref_update_url" />
     </PreferenceCategory>
