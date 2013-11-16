@@ -1,5 +1,7 @@
 package cl.gplaza.portero_rpi;
 
+import org.json.JSONObject;
+
 import cl.gplaza.portero_rpi.RestClient.RequestMethod;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 import android.util.Log;
 
 public class MainActivity extends Activity {
@@ -62,21 +65,33 @@ public class MainActivity extends Activity {
 	private void openDoor() {
 
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		String user = sharedPrefs.getString("prefUsername", "NULL");
-
-		RestClient client = new RestClient("http://192.168.0.28:8080/hello/gilles");
+		String password = sharedPrefs.getString("prefPassword", "NULL");
+		String url = sharedPrefs.getString("prefUrl", "NULL");
+		
+		RestClient client = new RestClient(url);
 		client.AddParam("user", user);
+		client.AddParam("password", password);
+		
+		Boolean result = false;
 		
 		try {
 			
-			client.Execute(RequestMethod.GET);
+			client.Execute(RequestMethod.POST);
+			String response = client.getResponse();
 			
+			JSONObject jsonObject = new JSONObject(response);
+			result = (Boolean) jsonObject.get("success");
+			//Log.d("cl.gplaza.portero_rpi", result);
+						
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		String response = client.getResponse();
-		Log.d("cl.gplaza.portero_rpi", response);
+		TextView settingsTextView = (TextView) findViewById(R.id.textView1);
+		settingsTextView.setText("Resultado : " + (result? "Exito" : "Error"));
+		
 	}
 
 }
