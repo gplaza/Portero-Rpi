@@ -51,6 +51,28 @@ def login():
       con.close()
   return respuesta
 
+@route('/register', method='POST')
+def register():
+  username = request.POST.get('user', '')
+  password = request.POST.get('password', '')
+  nuevo_username = request.POST.get('newu', '')
+  nuevo_password = request.POST.get('newp', '')
+  ok = False
+  try:
+    con = lite.connect(db_name)
+    checar = authentication(con, username, password)
+    if checar != None:
+      cur = con.cursor()
+      insert = "INSERT INTO users (user, password, nombre, apellido_p) VALUES (:user, :password, 'Nuevo', 'Usuario')"
+      cur.execute(insert,{"user":nuevo_username , "password":nuevo_password})
+      con.commit()
+  except lite.Error, e:
+    print "Error Login %s:" % e.args[0]
+  finally:
+    if con:
+      con.close()
+  return ok
+
 # configura los puertos fisicos de la raspberry Pi. Se conectara una entrada y una salida.
 def configpuerta () :  
   GPIO.setmode(GPIO.BOARD) # El mapeado de los pines es fisicamente como estan en la placa
