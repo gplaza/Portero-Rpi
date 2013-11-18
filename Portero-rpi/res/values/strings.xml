@@ -2,21 +2,24 @@
 <resources>
 
     <string name="app_name">Portero-rpi</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    <string name="action_settings">Parametros</string>
+    <string name="action_user">Usuarios</string>
+    <string name="menu_settings">Parametros</string>
     <string name="title_activity_main">MainActivity</string>
-    
+
     <!-- Setting about user -->
     <string name="pref_user_profile">Perfil Usuario</string>
     <string name="pref_user_name">Usuario</string>
     <string name="pref_user_name_summary">Definir el nombre usuario</string>
     <string name="pref_user_password">Contraseña</string>
     <string name="pref_user_password_summary">Ingresar aqui la contraseña</string>
-    
+
     <!-- Setting about server -->
     <string name="pref_update_setting">Servidor</string>
     <string name="pref_update_url">URL</string>
     <string name="pref_update_url_summary">Direccion web servidor</string>
-     
+    <string name="EnterPays_atomPay_nameHint">nombre</string>
+    <string name="EnterPays_TextView_ZeroValue">pass</string>
+    <string name="EnterPays_addPayment">Agregar Usuario</string>
+
 </resources>

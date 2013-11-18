@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
 	private ProgressBar mProgressBar;
 	private TextView textView;
 	private static final int RESULT_SETTINGS = 1;
+	private static final int RESULT_USER = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +61,13 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 
 		case R.id.action_settings:
-			Intent i = new Intent(this, UserSettingActivity.class);
+			Intent i = new Intent(this, ConnectSettingActivity.class);
 			startActivityForResult(i, RESULT_SETTINGS);
 			break;
-
+		case R.id.action_user:
+			Intent j = new Intent(this, UserSettingActivity.class);
+			startActivityForResult(j, RESULT_USER);
+			break;
 		}
 
 		return true;
@@ -82,7 +86,7 @@ public class MainActivity extends Activity {
 		Access person = new Access();
 
 		person.setUser(user);
-		person.setUrl(url);
+		person.setUrl(url + "/login");
 		person.setPassword(password);
 
 		RestAsynTask restTask = new RestAsynTask();

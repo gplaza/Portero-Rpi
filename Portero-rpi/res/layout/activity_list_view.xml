@@ -1,0 +1,47 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ListViewActivity" >
+
+    <ListView
+        android:id="@+id/EnterPays_atomPaysList"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/atom_pay_list_item"
+        android:layout_below="@+id/EnterPays_addAtomPayment" >
+
+    </ListView>
+
+    <Button
+        android:id="@+id/EnterPays_addAtomPayment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:drawableLeft="@android:drawable/ic_input_add" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/EnterPays_addAtomPayment"
+        android:layout_alignBottom="@+id/EnterPays_addAtomPayment"
+        android:layout_alignParentLeft="true"
+        android:ems="5" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/EnterPays_addAtomPayment"
+        android:layout_alignBottom="@+id/EnterPays_addAtomPayment"
+        android:layout_marginRight="15dp"
+        android:layout_toLeftOf="@+id/EnterPays_addAtomPayment"
+        android:ems="5"
+        android:inputType="textPassword" />
+
+</RelativeLayout>
