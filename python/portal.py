@@ -2,7 +2,6 @@
 
 # abre una puerta de casa
 
-
 import time	# Para manejar las esperas
 import RPi.GPIO as GPIO # Para trabajar con las entradas y salidas
 import sqlite3 as lite # Libreria para acceder al BD sqlite
@@ -10,27 +9,42 @@ import datetime
 import sys
 from bottle import route, run, template, request
 
-
 ## Declaracion de variables globales##
+# Variables hardware
 tespera = 1.0 # tiempo de espera para abrir la puerta desde que se ejecuta la orden
 topen = 1.0 # tiempo de apertura de la puerta en segundos
 pinpuerta = 7 # pin al que esta conectado el circuito de apertura, fisicamente es el 7
 pinpulsador = 11 #pin al que esta conectado el boton de llamada. fisicamente es el 11
 
-#Usuario y contrasenya del unico usuario en base de datos.
+#Variables POST
+IpRpi = '192.168.1.210'
+portRpi = 7000
+
+#Usuario y contrasenya para comporbar en base de datos.
 con = None
-usr_input = 'Bety' # 'Lety'
-pass_input = 'pa55w0rd'
 db_name = 'control' #Nombre de la base de datos.
 
 @route('/login', method='POST')
 def login():
   username = request.POST.get('user', '')
   password = request.POST.get('password', '')
-  if username == 'javi' and password == 'test':
-      return { "success" : True }
-  else:
-      return { "success" : False }
+  try:
+    con = lite.connect(db_name) #Abre la conexion a la base de datos.
+    print 'Recibiendo datos de Android'
+    checar = authentication(con, username, password)
+    if checar != None:
+      abrepuerta()
+      print 'Puerta abierta. Registrando usuario: ' + username
+      con = lite.connect(db_name) #Abre la conexion a la base de datos.
+      historialPuertaAbierta(con, username)
+      print 'Registro insertado en el historial'
+    else:
+      print 'La puerta no se ha abierto'
+  except lite.Error, e:    
+    print "Error Login %s:" % e.args[0]    
+  finally:    
+    if con:
+      con.close()
 
 # configura los puertos fisicos de la raspberry Pi. Se conectara una entrada y una salida.
 def configpuerta () :  
@@ -74,34 +88,18 @@ def historialPuertaAbierta(conexion, user):
     return
 
 def main() :
-  print ('entro en main')
+  print ('Inicializando sistema. Bienvenido')
   configpuerta ()
 # Cuando hay un evento en el pinpulsador, se lanza la interrupcion en cualquier parte
 # del programa. Se llamara a intrllamada y despues de ser ejecutada se seguira con el
 # programa. El bouncetime es para que si llaman 2 veces en menos de medio segundo solo 
 # se entre en la interrupcion 1 vez.
   GPIO.add_event_detect(pinpulsador, GPIO.FALLING, callback=intrllamada, bouncetime=500)
-  
-  while 1:
-    print('no se como hacer la interrupcion de abrir puerta abrepuerta() desde android')
-    try:
-        con = lite.connect(db_name) #Abre la conexion a la base de datos.
-        #cur = con.cursor() #Obtenemos el cursor para manejar los querys en la base de datos.
-        print 'Solo existe el usuario Bety, prueba con otro nombre para saber que no hace nada'
-        valido = authentication(con, usr_input, pass_input)
-        if valido != None:
-          abrepuerta()
-          print 'Puerta abierta... insertando registro en historial'
-          historialPuertaAbierta(con, usr_input)
-          print 'Registro insertado en el historial'
-        else:
-          print 'No abrir puerta'    
-    except lite.Error, e:    
-        print "Error %s:" % e.args[0]    
-    finally:    
-        if con:
-            con.close()
-    time.sleep(0.1)
-  GPIO.cleanup() #liberamos los pines
+# Escribimos los parametros para iniciar el servidor. es la ip de la pi y el puerto
+  run(host=IpRpi, port=portRpi)
+# Ejecutamos la comprobacion de android-rpi-basededatos
+  login()
+  GPIO.cleanup() #liberamos los pines de GPIO
+
 #Entramos en main
 main()
