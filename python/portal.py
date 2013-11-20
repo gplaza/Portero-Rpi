@@ -2,6 +2,7 @@
 
 # abre una puerta de casa
 
+
 import time	# Para manejar las esperas
 import RPi.GPIO as GPIO # Para trabajar con las entradas y salidas
 import sqlite3 as lite # Libreria para acceder al BD sqlite
@@ -9,10 +10,11 @@ import datetime
 import sys
 from bottle import route, run, template, request
 
+
 ## Declaracion de variables globales##
 # Variables hardware
-tespera = 1.0 # tiempo de espera para abrir la puerta desde que se ejecuta la orden
-topen = 1.0 # tiempo de apertura de la puerta en segundos
+tespera = 0.1 # tiempo de espera para abrir la puerta desde que se ejecuta la orden
+topen = 2.0 # tiempo de apertura de la puerta en segundos
 pinpuerta = 7 # pin al que esta conectado el circuito de apertura, fisicamente es el 7
 pinpulsador = 11 #pin al que esta conectado el boton de llamada. fisicamente es el 11
 
@@ -28,16 +30,18 @@ db_name = 'control' #Nombre de la base de datos.
 def login():
   username = request.POST.get('user', '')
   password = request.POST.get('password', '')
+  respuesta = { "success" : False } 
   try:
     con = lite.connect(db_name) #Abre la conexion a la base de datos.
     print 'Recibiendo datos de Android'
     checar = authentication(con, username, password)
     if checar != None:
       abrepuerta()
-      print 'Puerta abierta. Registrando usuario: ' + username
-      con = lite.connect(db_name) #Abre la conexion a la base de datos.
+      print 'Puerta abierta. Registrando usuario: '+username
       historialPuertaAbierta(con, username)
       print 'Registro insertado en el historial'
+      username = ''
+      respuesta = { "success" : True }
     else:
       print 'La puerta no se ha abierto'
   except lite.Error, e:    
@@ -45,6 +49,29 @@ def login():
   finally:    
     if con:
       con.close()
+  return respuesta
+
+@route('/register', method='POST')
+def register():
+  username = request.POST.get('user', '')
+  password = request.POST.get('password', '')
+  nuevo_username = request.POST.get('newu', '')
+  nuevo_password = request.POST.get('newp', '')
+  ok = False
+  try:
+    con = lite.connect(db_name)
+    checar = authentication(con, username, password)
+    if checar != None:
+      cur = con.cursor()
+      insert = "INSERT INTO users (user, password, nombre, apellido_p) VALUES (:user, :password, 'Nuevo', 'Usuario')"
+      cur.execute(insert,{"user":nuevo_username , "password":nuevo_password})
+      con.commit()
+  except lite.Error, e:
+    print "Error Login %s:" % e.args[0]
+  finally:
+    if con:
+      con.close()
+  return ok
 
 # configura los puertos fisicos de la raspberry Pi. Se conectara una entrada y una salida.
 def configpuerta () :  
@@ -89,17 +116,20 @@ def historialPuertaAbierta(conexion, user):
 
 def main() :
   print ('Inicializando sistema. Bienvenido')
-  configpuerta ()
-# Cuando hay un evento en el pinpulsador, se lanza la interrupcion en cualquier parte
-# del programa. Se llamara a intrllamada y despues de ser ejecutada se seguira con el
-# programa. El bouncetime es para que si llaman 2 veces en menos de medio segundo solo 
-# se entre en la interrupcion 1 vez.
-  GPIO.add_event_detect(pinpulsador, GPIO.FALLING, callback=intrllamada, bouncetime=500)
-# Escribimos los parametros para iniciar el servidor. es la ip de la pi y el puerto
-  run(host=IpRpi, port=portRpi)
-# Ejecutamos la comprobacion de android-rpi-basededatos
-  login()
-  GPIO.cleanup() #liberamos los pines de GPIO
+  try:
+    configpuerta ()
+    # Cuando hay un evento en el pinpulsador, se lanza la interrupcion en cualquier parte
+    # del programa. Se llamara a intrllamada y despues de ser ejecutada se seguira con el
+    # programa. El bouncetime es para que si llaman 2 veces en menos de medio segundo solo 
+    # se entre en la interrupcion 1 vez.
+    GPIO.add_event_detect(pinpulsador, GPIO.FALLING, callback=intrllamada, bouncetime=500)
+    # Escribimos los parametros para iniciar el servidor. es la ip de la pi y el puerto
+    run(host=IpRpi, port=portRpi)
+    # Ejecutamos la comprobacion de android-rpi-basededatos
+    login()
+  finally:
+    GPIO.cleanup() #liberamos los pines de GPIO
+    print 'Liberando pines GPIO'
 
 #Entramos en main
 main()
