@@ -8,6 +8,7 @@ import RPi.GPIO as GPIO # Para trabajar con las entradas y salidas
 import sqlite3 as lite # Libreria para acceder al BD sqlite
 import datetime
 import sys
+from bottle import route, run, template, request
 
 
 ## Declaracion de variables globales##
@@ -21,6 +22,15 @@ con = None
 usr_input = 'Bety' # 'Lety'
 pass_input = 'pa55w0rd'
 db_name = 'control' #Nombre de la base de datos.
+
+@route('/login', method='POST')
+def login():
+  username = request.POST.get('user', '')
+  password = request.POST.get('password', '')
+  if username == 'javi' and password == 'test':
+      return { "success" : True }
+  else:
+      return { "success" : False }
 
 # configura los puertos fisicos de la raspberry Pi. Se conectara una entrada y una salida.
 def configpuerta () :  
