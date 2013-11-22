@@ -71,10 +71,9 @@ public class UserSettingActivity extends Activity {
 		params.put("password", settingPassword);
 		params.put("newu", newUser);
 		params.put("newp", newPassword);
-		params.put("url", url + "/register");
 		
 		RestQueryObject restQuery = new RestQueryObject();
-		restQuery.setUrl(url);
+		restQuery.setUrl(url + "/register");
 		restQuery.setParams(params);
 
 		RestAsynTask restTask = new RestAsynTask();
