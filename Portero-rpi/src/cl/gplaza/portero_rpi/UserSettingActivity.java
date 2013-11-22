@@ -3,12 +3,8 @@ package cl.gplaza.portero_rpi;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.json.JSONObject;
-
-import cl.gplaza.portero_rpi.RestClient.RequestMethod;
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -57,6 +53,7 @@ public class UserSettingActivity extends Activity {
 	}
 
 	private void AddItem() {
+		
 		String newUser = user.getText().toString();
 		String newPassword = password.getText().toString();
 
@@ -75,55 +72,16 @@ public class UserSettingActivity extends Activity {
 		params.put("newu", newUser);
 		params.put("newp", newPassword);
 		params.put("url", url + "/register");
+		
+		RestQueryObject restQuery = new RestQueryObject();
+		restQuery.setUrl(url);
+		restQuery.setParams(params);
 
 		RestAsynTask restTask = new RestAsynTask();
-		restTask.execute(params);
+		restTask.execute(restQuery);
 
 		user.setText("");
 		password.setText("");
-	}
-
-	private class RestAsynTask extends AsyncTask<HashMap<String, String>, Integer, Boolean> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-		}
-
-		@Override
-		protected Boolean doInBackground(HashMap<String, String>... arg0) {
-
-			HashMap<String, String> params = arg0[0];
-
-			RestClient client = new RestClient(params.get("url"));
-			client.AddParam("user", params.get("user"));
-			client.AddParam("password", params.get("password"));
-			client.AddParam("newu", params.get("newu"));
-			client.AddParam("newp", params.get("newp"));
-
-			Boolean result = false;
-
-			try {
-
-				client.Execute(RequestMethod.POST);
-				String response = client.getResponse();
-
-				JSONObject jsonObject = new JSONObject(response);
-				result = (Boolean) jsonObject.get("success");
-
-			} catch (Exception e) {
-
-				e.printStackTrace();
-				return false;
-			}
-
-			return result;
-		}
-
 	}
 
 }

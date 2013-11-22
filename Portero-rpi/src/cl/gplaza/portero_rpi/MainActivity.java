@@ -1,9 +1,11 @@
 package cl.gplaza.portero_rpi;
 
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import cl.gplaza.portero_rpi.RestClient.RequestMethod;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -83,18 +85,46 @@ public class MainActivity extends Activity {
 		String password = sharedPrefs.getString("prefPassword", "NULL");
 		String url = sharedPrefs.getString("prefUrl", "NULL");
 
-		Access person = new Access();
-
-		person.setUser(user);
-		person.setUrl(url + "/login");
-		person.setPassword(password);
-
-		RestAsynTask restTask = new RestAsynTask();
-		restTask.execute(person);
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("user", user);
+		params.put("password", password);
+		
+		RestQueryObject restQuery = new RestQueryObject();
+		restQuery.setUrl(url + "/login");
+		restQuery.setParams(params);
+		
+		RestAsynTask restTask = new RestAsynTaskLogin();
+		JSONObject result = null;
+		Boolean resultado = false;
+		
+		try {
+			
+			result = restTask.execute(restQuery).get();
+			resultado = result.getBoolean("success");
+			
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		} catch (ExecutionException e1) {
+			e1.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		textView.setText("Resultado : " + (resultado ? "Exito" : "Error"));
+		textView.setVisibility(View.VISIBLE);
+		
+		Animation anim = new AlphaAnimation(0.0f, 1.0f);
+		anim.setDuration(70);
+		anim.setStartOffset(20);
+		anim.setRepeatMode(Animation.REVERSE);
+		anim.setRepeatCount(10);
+		textView.startAnimation(anim);
+		
+		textView.setVisibility(View.INVISIBLE);
 		
 	}
 
-	private class RestAsynTask extends AsyncTask<Access, Integer, Boolean> {
+	private class RestAsynTaskLogin extends RestAsynTask {
 
 		@Override
 		protected void onPreExecute() {
@@ -103,55 +133,10 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		protected Boolean doInBackground(Access... access) {
-			
-			Access person = access[0];
-
-			String user = person.getUser();
-			String password = person.getPassword();
-			String url = person.getUrl();
-
-			RestClient client = new RestClient(url);
-			client.AddParam("user", user);
-			client.AddParam("password", password);
-
-			Boolean result = false;
-						
-			try {
-
-				client.Execute(RequestMethod.POST);
-				String response = client.getResponse();
-
-				JSONObject jsonObject = new JSONObject(response);
-				result = (Boolean) jsonObject.get("success");
-	
-			} catch (Exception e) {
-
-				e.printStackTrace();
-				return false;
-			}
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
 			mProgressBar.setVisibility(View.INVISIBLE);
-			
-			textView.setText("Resultado : " + (result ? "Exito" : "Error"));
-			textView.setVisibility(View.VISIBLE);
-			
-			Animation anim = new AlphaAnimation(0.0f, 1.0f);
-			anim.setDuration(70);
-			anim.setStartOffset(20);
-			anim.setRepeatMode(Animation.REVERSE);
-			anim.setRepeatCount(10);
-			textView.startAnimation(anim);
-			
-			textView.setVisibility(View.INVISIBLE);
 		}
-
 	}
 
 }
